@@ -1,32 +1,58 @@
 package com.orhanobut.logger;
 
+import android.support.annotation.NonNull;
+
 import com.orhanobut.logger.util.ObjParser;
 import com.orhanobut.logger.util.XmlJsonParser;
-
-import android.support.annotation.NonNull;
 
 import timber.log.Timber;
 
 /**
  * Logger is a wrapper of {@link Timber}
  * But more pretty, simple and powerful
+ * 注意：要让设置Settings生效必须使用LogDebugTree作为默认tree才行
  *
  * @author Orhan Obut
  */
-public class Logger {
+public final class Logger {
 
-    private static LogPrinter printer;
+    private static LogDebugTree printer;
 
-    // @formatter:off
-    protected Logger() {}
-    // @formatter:on
+    protected Logger() {
+    }
 
-    public static void initialize(Settings settings) {
-        printer = new LogPrinter(settings);
+    /**
+     * using default DebugTree, same with {@link #plant(Timber.Tree)} and this tree is LogDebugTree
+     * <p>notice: only invoke once time
+     * @param settings default setting
+     */
+    public static void plantDefaultDebugTree(Settings settings) {
+        printer = new LogDebugTree(settings);
         Timber.plant(printer);
     }
 
+    /**
+     * using default DebugTree, same with {@link #plant(Timber.Tree)} and this tree is LogDebugTree
+     * <p>notice: only invoke once time
+     */
+    public static void plantDefaultDebugTree(){
+        printer = new LogDebugTree(new Settings()
+                .isShowMethodLink(true)
+                .isShowThreadInfo(false)
+                .setMethodOffset(0)
+//                .setLogPriority(BuildConfig.DEBUG ? Log.VERBOSE : Log.ASSERT)
+        );
+        Timber.plant(printer);
+    }
+
+    /**
+     * maybe return null, if not use default tree (by invoke {@link #plantDefaultDebugTree()})
+     * @return
+     * @see #plantDefaultDebugTree()
+     * @see #plantDefaultDebugTree(Settings)
+     */
     public static Settings getSettings() {
+        if (printer == null) return null;
         return printer.getSettings();
     }
 
@@ -67,6 +93,16 @@ public class Logger {
     public static void e(Throwable throwable, String message, Object... args) {
         message = handleNullMsg(message);
         Timber.e(throwable, message, args);
+    }
+
+    public static void wtf(String message, Object... args){
+        message = handleNullMsg(message);
+        Timber.wtf(message, args);
+    }
+
+    public static void wtf(Throwable throwable, String message, Object... args) {
+        message = handleNullMsg(message);
+        Timber.wtf(throwable, message, args);
     }
 
     /**

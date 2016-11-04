@@ -1,7 +1,6 @@
-[![](https://jitpack.io/v/tianzhijiexian/logger.svg)](https://jitpack.io/#tianzhijiexian/logger)
-[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Logger-brightgreen.svg?style=flat)](http://android-arsenal.com/details/1/1658) [![](https://img.shields.io/badge/AndroidWeekly-%23147-blue.svg)](http://androidweekly.net/issues/issue-147)
+[![Download][bintray_svg]][bintray_url]
 
-<img align="right" src='https://raw.githubusercontent.com/tianzhijiexian/logger/master/images/logger-logo.png' width='128' height='128'/>
+<img align="right" src='https://raw.githubusercontent.com/haodynasty/logger/master/images/logger-logo.png' width='128' height='128'/>
 
 ###Logger
 Simple, pretty and powerful logger for android
@@ -18,17 +17,21 @@ Logger provides :
 - support large string  
 
 ### Gradle
-Add it in your root build.gradle at the end of repositories:  
-```groovy
-allprojects {
-	repositories {
-		...
-		maven { url "https://jitpack.io" }
-	}
+add to build.gradle,${latest.version} is [![Download][bintray_svg]][bintray_url]
+```
+dependencies {
+    compile 'com.blakequ.logger:logger:${latest.version}'
 }
-```  
-Add the dependency  
-> compile 'com.github.tianzhijiexian:logger:[Latest release](https://github.com/tianzhijiexian/logger/releases)'
+```
+maven
+```
+<dependency>
+  <groupId>com.blakequ.logger</groupId>
+  <artifactId>logger</artifactId>
+  <version>${latest.version}</version>
+  <type>pom</type>
+</dependency>
+```
 
 and also compile https://github.com/JakeWharton/timber
 
@@ -75,7 +78,33 @@ D/MainActivity: ║} ==> jsonTest(MainActivity.java:87)
 D/MainActivity: ╚═══════════════════════════
 ```
 
-### Usage
+### Usage 
+Change the settings with init. This should be called only once. Best place would be in application class. All of them
+ are optional.
+```java
+public class MyApplication extends Application {
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+				if (!BuildConfig.DEBUG) {
+                            // for release
+                            Logger.plant(new CrashlyticsTree());
+                        }else {
+                            Logger.plantDefaultDebugTree(new Settings()
+                                        .isShowMethodLink(true)
+                                        .isShowThreadInfo(false)
+                                        .setMethodOffset(0)
+                                        .setLogPriority(BuildConfig.DEBUG ? Log.VERBOSE : Log.ASSERT));
+                //            Logger.plantDefaultDebugTree();
+                        }
+    }
+}
+注意要使Settings生效必须使用默认实现的LogDebugTree,在Logger.plantDefaultDebugTree()中已经使用了LogDebugTree
+```
+Note: Use LogLevel.NONE for the release versions.
+
+### Example
 ```java
 Logger.d("hello"); // debug
 
@@ -102,28 +131,22 @@ try {
 }
 
 Logger.d("first\nsecond\nthird"); // third line
-```
 
-### Settings (optional)
-Change the settings with init. This should be called only once. Best place would be in application class. All of them
- are optional.
-```java
-public class MyApplication extends Application {
+------------------------------------------------------------------
+注意使用下面特性前提是：使用默认实现的DebugTree即LogDebugTree（不是Timber.DebugTree）
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-				Logger.initialize(
-                new Settings()
-                        .isShowMethodLink(true)
-                        .isShowThreadInfo(false)
-                        .setMethodOffset(0)
-                        .setLogPriority(BuildConfig.DEBUG ? Log.VERBOSE : Log.ASSERT)
-        );
-    }
-}
+//add new setting, can filter tag
+Logger.getSettings().addFilterTag("TempLogTag");
+Logger.t("TempLogTag").d("filter this log and will not print"); //will not print this log
+
+//clean log filter
+Logger.getSettings().cleanFilterTag();
+Logger.t("TempLogTag").d("clean filter and will print"); //will print this log
+
+
+//close Log
+Logger.getSettings().setLogPriority(Log.ASSERT);
 ```
-Note: Use LogLevel.NONE for the release versions.
 
 #### You might also like
 - [Hawk](https://github.com/orhanobut/hawk) Simple,powerful,secure key-value storage
@@ -148,3 +171,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 </pre>
+
+[bintray_svg]: https://api.bintray.com/packages/haodynasty/maven/logger/images/download.svg
+[bintray_url]: https://bintray.com/haodynasty/maven/logger/_latestVersion

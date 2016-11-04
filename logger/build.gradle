@@ -1,22 +1,33 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion '24'
+    compileSdkVersion COMPILE_SDK_VERSION
+    buildToolsVersion BUILD_TOOLS_VERSION as String
 
     defaultConfig {
-        minSdkVersion 15
-        targetSdkVersion 23
+        minSdkVersion MIN_SDK_VERSION
+        targetSdkVersion TARGET_SDK_VERSION
+        versionCode VERSION_CODE as int
+        versionName VERSION_NAME as String
     }
+}
 
+tasks.withType(Javadoc){
+    failOnError = false
 }
 
 dependencies {
     provided 'com.android.support:support-annotations:23.2.1'
-    provided "org.projectlombok:lombok:1.12.6"
-    provided 'com.jakewharton.timber:timber:4.1.1'
+    provided 'com.jakewharton.timber:timber:4.3.1'
     
     testCompile 'junit:junit:4.12'
     testCompile "org.mockito:mockito-core:1.9.5"
     testCompile "org.robolectric:robolectric:3.0"
+}
+
+if (isForUpload2Maven()) {
+    println ':library:include upload 2 maven methods'
+    apply from: 'https://raw.githubusercontent.com/haodynasty/JCenter/master/installv1.gradle'
+    apply from: 'https://raw.githubusercontent.com/haodynasty/JCenter/master/bintrayv1.gradle'
+//    apply from: 'https://raw.githubusercontent.com/haodynasty/JCenter/master/license.gradle'
 }

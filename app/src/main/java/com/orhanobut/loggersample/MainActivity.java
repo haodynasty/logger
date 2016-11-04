@@ -1,13 +1,13 @@
 package com.orhanobut.loggersample;
 
-import com.orhanobut.logger.Logger;
-import com.orhanobut.logger.Settings;
-
 import android.os.Bundle;
 import android.support.annotation.StringRes;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.TextView;
+
+import com.orhanobut.logger.Logger;
+import com.orhanobut.logger.Settings;
 
 import java.util.Arrays;
 
@@ -18,17 +18,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Logger.initialize(
-                new Settings()
-                        .isShowMethodLink(true)
-                        .isShowThreadInfo(false)
-                        .setMethodOffset(0)
-                        .setLogPriority(BuildConfig.DEBUG ? Log.VERBOSE : Log.ASSERT)
-        );
-
         if (!BuildConfig.DEBUG) {
             // for release
             Logger.plant(new CrashlyticsTree());
+        }else {
+            Logger.plantDefaultDebugTree(new Settings()
+                        .isShowMethodLink(true)
+                        .isShowThreadInfo(false)
+                        .setMethodOffset(0)
+                        .setLogPriority(BuildConfig.DEBUG ? Log.VERBOSE : Log.ASSERT));
+//            Logger.plantDefaultDebugTree();
         }
 
         levTest();
@@ -37,11 +36,25 @@ public class MainActivity extends AppCompatActivity {
         locationTest();
         largeDataTest();
 
-        Logger.getSettings().setLogPriority(Log.ASSERT); // close log
+        //filter log
+        Logger.getSettings().addFilterTag("TempLogTag");
+        filterTag();
 
+        //close tag
+        Logger.getSettings().setLogPriority(Log.ASSERT); // close log
         CrashHandler.getInstance().init(); // 崩溃检测处理器
-        
 //        setRes(123);  // 模拟崩溃
+    }
+
+    private void filterTag(){
+        Logger.d("Normal Log");
+        Logger.t("TempLogTag").d("filter this log and will not print");
+        Logger.wtf("this log will print stack trace");
+
+        //clean log filter
+        Logger.getSettings().cleanFilterTag();
+        Logger.t("TempLogTag").d("clean filter and will print");
+        Logger.d("Normal Log2");
     }
 
     private void levTest() {

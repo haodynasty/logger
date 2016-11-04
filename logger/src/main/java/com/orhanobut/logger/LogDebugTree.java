@@ -2,13 +2,12 @@ package com.orhanobut.logger;
 
 import android.support.annotation.NonNull;
 
-import lombok.Getter;
 import timber.log.Timber;
 
 /**
  * Wrap {@link timber.log.Timber.Tree} for make log pretty
  */
-public final class LogPrinter extends Timber.DebugTree {
+public final class LogDebugTree extends Timber.DebugTree {
 
     private static final int STACK_OFFSET = 8;
 
@@ -23,13 +22,19 @@ public final class LogPrinter extends Timber.DebugTree {
 
     private StringBuilder sb = new StringBuilder();
 
-    @Getter
     private final Settings settings;
 
     private static final String PROPERTY = System.getProperty("line.separator");
 
-    LogPrinter(Settings settings) {
+    LogDebugTree(Settings settings) {
+        if (settings == null){
+            throw new IllegalArgumentException("Settings is null, can not init LogDebugTree");
+        }
         this.settings = settings;
+    }
+
+    public Settings getSettings(){
+        return this.settings;
     }
 
     /**
@@ -89,14 +94,24 @@ public final class LogPrinter extends Timber.DebugTree {
         return sb.toString();
     }
 
+
     /**
-     * 根据级别显示log
-     *
+     * 根据级别显示log,并且新增tag过滤
      * @return 默认所有级别都显示
      */
     @Override
-    protected boolean isLoggable(int priority) {
-        return priority >= settings.priority;
+    protected boolean isLoggable(String tag, int priority) {
+        boolean isPrint = priority >= settings.priority;
+        if (isPrint){
+            if (settings.filterTagArray != null && settings.filterTagArray.size() > 0){
+                for (String filterTag:settings.filterTagArray){
+                    if (filterTag.equals(tag)){
+                        isPrint = false;
+                        break;
+                    }
+                }
+            }
+        }
+        return isPrint;
     }
-
 }
