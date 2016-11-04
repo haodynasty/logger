@@ -88,16 +88,16 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
 				if (!BuildConfig.DEBUG) {
-                            // for release
-                            Logger.plant(new CrashlyticsTree());
-                        }else {
-                            Logger.plantDefaultDebugTree(new Settings()
+                     // for release
+                     Logger.plant(new CrashlyticsTree());
+                }else {
+                     Logger.plantDefaultDebugTree(new Settings()
                                         .isShowMethodLink(true)
                                         .isShowThreadInfo(false)
                                         .setMethodOffset(0)
                                         .setLogPriority(BuildConfig.DEBUG ? Log.VERBOSE : Log.ASSERT));
-                //            Logger.plantDefaultDebugTree();
-                        }
+                   //Logger.plantDefaultDebugTree();
+                }
     }
 }
 注意要使Settings生效必须使用默认实现的LogDebugTree,在Logger.plantDefaultDebugTree()中已经使用了LogDebugTree
